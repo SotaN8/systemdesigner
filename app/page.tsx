@@ -1,103 +1,215 @@
-import Image from "next/image";
+'use client';
 
-export default function Home() {
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+} from '@/components/ui/dropdown-menu';
+import {
+  ChevronDown,
+  Download,
+  Copy,
+  Link,
+  Image as ImageIcon,
+} from 'lucide-react';
+import { CATEGORY_ORDER, ICONS, IconType, StackItem } from './lib/types';
+import { generateId } from './lib/utils';
+import { StackCategory } from './components/stack-category';
+import { StackIcon } from './components/ui/stack-icon';
+
+const tools = {
+  frontend: ['React'],
+  backend: ['Node.js'],
+} as const;
+
+export default function Builder() {
+  const [stackItems, setStackItems] = useState<StackItem[]>([]);
+  const [isExporting, setIsExporting] = useState(false);
+
+  const addToStack = (type: string, name: IconType) => {
+    const exists = stackItems.some(
+      (item) => item.type === type && item.name === name
+    );
+    if (exists) {
+      alert(`${name} is already in your ${type} stack!`);
+      return;
+    }
+
+    setStackItems([
+      ...stackItems,
+      {
+        id: generateId(),
+        type,
+        name,
+        icon: ICONS[name],
+      },
+    ]);
+  };
+
+  const removeFromStack = (id: string) => {
+    setStackItems(stackItems.filter((item) => item.id !== id));
+  };
+
+  const groupedItems = CATEGORY_ORDER.reduce((acc, category) => {
+    acc[category] = stackItems.filter((item) => item.type === category);
+    return acc;
+  }, {} as Record<string, StackItem[]>);
+
+  const handleExportPNG = async () => {
+    if (stackItems.length === 0) {
+      alert('Please add some items to your stack first!');
+      return;
+    }
+
+    try {
+      setIsExporting(true);
+      const params = new URLSearchParams();
+      params.set('stack', JSON.stringify(stackItems));
+
+      const response = await fetch(`/api/og?${params.toString()}`);
+      const blob = await response.blob();
+
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'system-design.png';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Failed to export image:', error);
+      alert('Failed to export image. Please try again.');
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
+  const handleCopyImage = async () => {
+    if (stackItems.length === 0) {
+      alert('Please add some items to your stack first!');
+      return;
+    }
+
+    try {
+      setIsExporting(true);
+      const params = new URLSearchParams();
+      params.set('stack', JSON.stringify(stackItems));
+
+      const response = await fetch(`/api/og?${params.toString()}`);
+      const blob = await response.blob();
+      const item = new ClipboardItem({ 'image/png': blob });
+      await navigator.clipboard.write([item]);
+    } catch (error) {
+      console.error('Failed to copy image:', error);
+      alert('Failed to copy image. Please try again.');
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
   return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+    <div className='min-h-screen bg-black text-white'>
+      <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8'>
+        <div className='flex justify-between items-center mb-8'>
+          <h1 className='text-2xl font-bold'>System Designer</h1>
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant='outline'
+                className='bg-neutral-800 text-white border-neutral-700 hover:bg-neutral-700 hover:text-white'
+                disabled={isExporting}
+              >
+                <Download className='mr-2 h-4 w-4' />
+                Export Image
+                <ChevronDown className='ml-2 h-4 w-4' />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className='w-56 bg-neutral-900 border-neutral-800'>
+              <DropdownMenuItem
+                className='flex items-center cursor-pointer hover:bg-neutral-800 text-white'
+                onClick={handleExportPNG}
+              >
+                <ImageIcon className='mr-2 h-4 w-4' />
+                Save PNG
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                className='flex items-center cursor-pointer hover:bg-neutral-800 text-white'
+                onClick={handleCopyImage}
+              >
+                <Copy className='mr-2 h-4 w-4' />
+                Copy Image
+              </DropdownMenuItem>
+              <DropdownMenuSeparator className='bg-neutral-800' />
+              <DropdownMenuItem className='flex items-center cursor-pointer hover:bg-neutral-800 text-white'>
+                <Link className='mr-2 h-4 w-4' />
+                Copy URL
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+
+        <div className='grid grid-cols-1 lg:grid-cols-2 gap-8'>
+          {/* Left Column - Canvas Preview */}
+          <div className='relative'>
+            <div
+              className='bg-[#0C1015] rounded-xl overflow-hidden min-h-[600px] w-full'
+              style={{
+                boxShadow: '0 0 0 1px rgba(255,255,255,0.1)',
+              }}
+            >
+              <div className='p-12'>
+                {stackItems.length === 0 ? (
+                  <div className='flex items-center justify-center h-[200px] text-gray-400 text-center'>
+                    Select components from the right to start building your
+                    stack
+                  </div>
+                ) : (
+                  <div className='space-y-12'>
+                    {CATEGORY_ORDER.map((category) => (
+                      <StackCategory
+                        key={category}
+                        title={category}
+                        items={groupedItems[category]}
+                        onRemove={removeFromStack}
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Right Column - Tool Selection */}
+          <div className='space-y-8'>
+            {CATEGORY_ORDER.map((category) => (
+              <div
+                key={category}
+                className='bg-[#0C1015] rounded-xl p-6 border border-[#222222]'
+              >
+                <h2 className='text-xl font-semibold mb-4 capitalize'>
+                  {category}
+                </h2>
+                <div className='grid grid-cols-2 sm:grid-cols-3 gap-3'>
+                  {tools[category].map((tool) => (
+                    <StackIcon
+                      key={tool}
+                      icon={ICONS[tool]}
+                      name={tool}
+                      onClick={() => addToStack(category, tool)}
+                    />
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
