@@ -16,41 +16,37 @@ import {
   Link,
   Image as ImageIcon,
 } from 'lucide-react';
-import { CATEGORY_ORDER, ICONS, IconType, StackItem } from './lib/types';
-import { generateId } from './lib/utils';
+import { CATEGORY_ORDER, type StackItem, type CategoryType } from './lib/types';
 import { StackCategory } from './components/stack-category';
 import { StackIcon } from './components/ui/stack-icon';
-
-const tools = {
-  frontend: ['React'],
-  backend: ['Node.js'],
-} as const;
+import { tools, type Tool } from './lib/tools';
 
 export default function Builder() {
   const [stackItems, setStackItems] = useState<StackItem[]>([]);
   const [isExporting, setIsExporting] = useState(false);
 
-  const addToStack = (type: string, name: IconType) => {
+  const addToStack = (type: CategoryType, tool: Tool) => {
     const exists = stackItems.some(
-      (item) => item.type === type && item.name === name
+      (item) => item.type === type && item.name === tool.name
     );
     if (exists) {
-      alert(`${name} is already in your ${type} stack!`);
+      alert(`${tool.name} is already in your ${type} stack!`);
       return;
     }
 
     setStackItems([
       ...stackItems,
       {
-        id: generateId(),
+        id: tool.id,
         type,
-        name,
-        icon: ICONS[name],
+        name: tool.name,
+        icon: tool.icon,
+        url: tool.url,
       },
     ]);
   };
 
-  const removeFromStack = (id: string) => {
+  const removeFromStack = (id: number) => {
     setStackItems(stackItems.filter((item) => item.id !== id));
   };
 
@@ -198,9 +194,9 @@ export default function Builder() {
                 <div className='grid grid-cols-2 sm:grid-cols-3 gap-3'>
                   {tools[category].map((tool) => (
                     <StackIcon
-                      key={tool}
-                      icon={ICONS[tool]}
-                      name={tool}
+                      key={tool.name}
+                      icon={tool.icon}
+                      name={tool.name}
                       onClick={() => addToStack(category, tool)}
                     />
                   ))}

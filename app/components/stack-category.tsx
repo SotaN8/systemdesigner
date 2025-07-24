@@ -4,7 +4,7 @@ import { StackIcon } from './ui/stack-icon';
 interface StackCategoryProps {
   title: string;
   items: StackItem[];
-  onRemove?: (id: string) => void;
+  onRemove?: (id: number) => void;
 }
 
 export function StackCategory({ title, items, onRemove }: StackCategoryProps) {
