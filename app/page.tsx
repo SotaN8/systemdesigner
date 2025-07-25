@@ -55,6 +55,12 @@ export default function Builder() {
     return acc;
   }, {} as Record<string, StackItem[]>);
 
+  // Filter out already selected tools
+  const getAvailableTools = (category: CategoryType) => {
+    const selectedToolIds = stackItems.map((item) => item.id);
+    return tools[category].filter((tool) => !selectedToolIds.includes(tool.id));
+  };
+
   const handleExportPNG = async () => {
     if (stackItems.length === 0) {
       alert('Please add some items to your stack first!');
@@ -159,14 +165,14 @@ export default function Builder() {
                 boxShadow: '0 0 0 1px rgba(255,255,255,0.1)',
               }}
             >
-              <div className='p-12'>
+              <div className='p-8'>
                 {stackItems.length === 0 ? (
                   <div className='flex items-center justify-center h-[200px] text-gray-400 text-center'>
                     Select components from the right to start building your
                     stack
                   </div>
                 ) : (
-                  <div className='space-y-12'>
+                  <div className='space-y-4'>
                     {CATEGORY_ORDER.map((category) => (
                       <StackCategory
                         key={category}
@@ -192,7 +198,7 @@ export default function Builder() {
                   {category}
                 </h2>
                 <div className='grid grid-cols-2 sm:grid-cols-3 gap-3'>
-                  {tools[category].map((tool) => (
+                  {getAvailableTools(category).map((tool) => (
                     <StackIcon
                       key={tool.name}
                       icon={tool.icon}

@@ -1,6 +1,17 @@
-export type CategoryType = 'frontend' | 'backend';
+export type CategoryType =
+  | 'frontend'
+  | 'backend'
+  | 'database'
+  | 'infra'
+  | 'devops';
 
-export const CATEGORY_ORDER: CategoryType[] = ['frontend', 'backend'];
+export const CATEGORY_ORDER: CategoryType[] = [
+  'frontend',
+  'backend',
+  'database',
+  'infra',
+  'devops',
+];
 
 export interface StackItem {
   id: number;

@@ -19,7 +19,7 @@ export const tools: Record<CategoryType, Tool[]> = {
     {
       id: 2,
       name: 'Next.js',
-      icon: '/icons/next.svg',
+      icon: '/icons/nextjs.svg',
       url: 'https://nextjs.org',
     },
     {
@@ -77,6 +77,72 @@ export const tools: Record<CategoryType, Tool[]> = {
       name: 'Python',
       icon: '/icons/python.svg',
       url: 'https://www.python.org',
+    },
+  ],
+  database: [
+    {
+      id: 12,
+      name: 'PostgreSQL',
+      icon: '/icons/postgresql.svg',
+      url: 'https://www.postgresql.org',
+    },
+    {
+      id: 13,
+      name: 'MySQL',
+      icon: '/icons/mysql.svg',
+      url: 'https://www.mysql.com',
+    },
+    {
+      id: 14,
+      name: 'SQLite',
+      icon: '/icons/sqlite.svg',
+      url: 'https://www.sqlite.org',
+    },
+    {
+      id: 15,
+      name: 'MongoDB',
+      icon: '/icons/mongodb.svg',
+      url: 'https://www.mongodb.com',
+    },
+    {
+      id: 16,
+      name: 'Redis',
+      icon: '/icons/redis.svg',
+      url: 'https://redis.io',
+    },
+  ],
+  infra: [
+    {
+      id: 15,
+      name: 'AWS',
+      icon: '/icons/aws.svg',
+      url: 'https://aws.amazon.com',
+    },
+    {
+      id: 16,
+      name: 'Google Cloud',
+      icon: '/icons/gcp.svg',
+      url: 'https://cloud.google.com',
+    },
+    {
+      id: 17,
+      name: 'Azure',
+      icon: '/icons/azure.svg',
+      url: 'https://azure.microsoft.com',
+    },
+  ],
+  devops: [
+    {
+      id: 18,
+      name: 'Docker',
+      icon: '/icons/docker.svg',
+      url: 'https://www.docker.com',
+    },
+    {
+      id: 19,
+      name: 'Kubernetes',
+      icon: '/icons/kubernetes.svg',
+      url: 'https://kubernetes.io',
     },
   ],
 };
